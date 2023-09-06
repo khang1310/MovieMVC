@@ -7,34 +7,43 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Models;
+using WebApplication1.EFCore;
 
 namespace WebApplication1.Controllers
 {
+    [ApiController]
+    [Route("api/v{version:apiVersion}/[controller]/[action]")]
+    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
     public class MoviesController : Controller
     {
-        private readonly WebApplication1Context _context;
+        private readonly EfCoreMovieRepository repository;
 
-        public MoviesController(WebApplication1Context context)
+        public MoviesController(EfCoreMovieRepository repository)
         {
-            _context = context;
+            this.repository = repository;
         }
 
         // GET: Movies
+        [MapToApiVersion("1.0")]
         public async Task<IActionResult> Index()
         {
-              return View(await _context.Movie.ToListAsync());
+              return View(await repository.GetAll());
+        }
+
+        // GET: Movies
+        [MapToApiVersion("2.0")]
+        public string Get()
+        {
+            return "Version 2.0";
         }
 
         // GET: Movies/Details/5
-        public async Task<IActionResult> Details(int? id)
+        [MapToApiVersion("1.0")]
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null || _context.Movie == null)
-            {
-                return NotFound();
-            }
+            Movie movie = await repository.Get(id);
 
-            var movie = await _context.Movie
-                .FirstOrDefaultAsync(m => m.Id == id);
             if (movie == null)
             {
                 return NotFound();
@@ -44,42 +53,42 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Movies/Create
+        [MapToApiVersion("1.0")]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: Movies/Create
+        [MapToApiVersion("1.0")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Title,ReleaseDate,Genre,Price")] Movie movie)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(movie);
-                await _context.SaveChangesAsync();
+                await repository.Add(movie);
                 return RedirectToAction(nameof(Index));
             }
             return View(movie);
         }
 
         // GET: Movies/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        [MapToApiVersion("1.0")]
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null || _context.Movie == null)
-            {
-                return NotFound();
-            }
+            Movie movie = await repository.Get(id);
 
-            var movie = await _context.Movie.FindAsync(id);
             if (movie == null)
             {
                 return NotFound();
             }
+
             return View(movie);
         }
 
         // POST: Movies/Edit/5
+        [MapToApiVersion("1.0")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ReleaseDate,Genre,Price")] Movie movie)
@@ -93,8 +102,7 @@ namespace WebApplication1.Controllers
             {
                 try
                 {
-                    _context.Update(movie);
-                    await _context.SaveChangesAsync();
+                    await repository.Update(movie);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -113,15 +121,11 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Movies/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        [MapToApiVersion("1.0")]
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null || _context.Movie == null)
-            {
-                return NotFound();
-            }
+            Movie movie = await repository.Get(id);
 
-            var movie = await _context.Movie
-                .FirstOrDefaultAsync(m => m.Id == id);
             if (movie == null)
             {
                 return NotFound();
@@ -131,27 +135,23 @@ namespace WebApplication1.Controllers
         }
 
         // POST: Movies/Delete/5
+        [MapToApiVersion("1.0")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Movie == null)
+            Movie movie = await repository.Delete(id);
+            if (movie == null)
             {
-                return Problem("Entity set 'WebApplication1Context.Movie'  is null.");
+                return NotFound();
             }
-            var movie = await _context.Movie.FindAsync(id);
-            if (movie != null)
-            {
-                _context.Movie.Remove(movie);
-            }
-            
-            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
         private bool MovieExists(int id)
         {
-          return _context.Movie.Any(e => e.Id == id);
+            return repository.MovieExists(id);
         }
     }
 }
