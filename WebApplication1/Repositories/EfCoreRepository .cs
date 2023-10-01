@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 
-namespace WebApplication1.EFCore
+namespace WebApplication1.Repositories
 {
     public abstract class EfCoreRepository<TEntity, TContext> : IRepository<TEntity>
         where TEntity : class, IEntity

@@ -15,5 +15,6 @@ namespace WebApplication1.Data
         }
 
         public DbSet<WebApplication1.Models.Movie> Movie { get; set; } = default!;
+        public DbSet<WebApplication1.Models.Star> Star { get; set; } = default!;
     }
 }

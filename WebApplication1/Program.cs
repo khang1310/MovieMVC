@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using WebApplication1.Data;
 using WebApplication1.Models;
-using WebApplication1.EFCore;
+using WebApplication1.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<WebApplication1Context>(options =>
@@ -13,6 +13,7 @@ builder.Services.AddDbContext<WebApplication1Context>(options =>
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<EfCoreMovieRepository>();
+builder.Services.AddScoped<StarRepository>();
 
 builder.Services.AddApiVersioning(opt =>
 {
