@@ -11,24 +11,25 @@ using WebApplication1.Repositories;
 
 namespace WebApplication1.Controllers
 {
-    [ApiController]
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     [ApiVersion("1.0")]
     [ApiVersion("2.0")]
     public class MoviesController : Controller
     {
-        private readonly EfCoreMovieRepository repository;
+        private readonly MovieReadRepository readRepository;
+        private readonly MovieWriteRepository writeRepository;
 
-        public MoviesController(EfCoreMovieRepository repository)
+        public MoviesController(MovieReadRepository readRepository, MovieWriteRepository writeRepository)
         {
-            this.repository = repository;
+            this.readRepository = readRepository;
+            this.writeRepository = writeRepository;
         }
 
         // GET: Movies
         [MapToApiVersion("1.0")]
         public async Task<IActionResult> Index()
         {
-              return View(await repository.GetAll());
+              return View(await readRepository.GetAll());
         }
 
         // GET: Movies
@@ -42,7 +43,7 @@ namespace WebApplication1.Controllers
         [MapToApiVersion("1.0")]
         public async Task<IActionResult> Details(int id)
         {
-            Movie movie = await repository.Get(id);
+            Movie movie = await readRepository.Get(id);
 
             if (movie == null)
             {
@@ -67,7 +68,7 @@ namespace WebApplication1.Controllers
         {
             if (ModelState.IsValid)
             {
-                await repository.Add(movie);
+                await writeRepository.Add(movie);
                 return RedirectToAction(nameof(Index));
             }
             return View(movie);
@@ -77,7 +78,7 @@ namespace WebApplication1.Controllers
         [MapToApiVersion("1.0")]
         public async Task<IActionResult> Edit(int id)
         {
-            Movie movie = await repository.Get(id);
+            Movie movie = await readRepository.Get(id);
 
             if (movie == null)
             {
@@ -102,7 +103,7 @@ namespace WebApplication1.Controllers
             {
                 try
                 {
-                    await repository.Update(movie);
+                    await writeRepository.Update(movie);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -124,7 +125,7 @@ namespace WebApplication1.Controllers
         [MapToApiVersion("1.0")]
         public async Task<IActionResult> Delete(int id)
         {
-            Movie movie = await repository.Get(id);
+            Movie movie = await readRepository.Get(id);
 
             if (movie == null)
             {
@@ -140,7 +141,7 @@ namespace WebApplication1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            Movie movie = await repository.Delete(id);
+            Movie movie = await writeRepository.Delete(id);
             if (movie == null)
             {
                 return NotFound();
@@ -151,7 +152,7 @@ namespace WebApplication1.Controllers
 
         private bool MovieExists(int id)
         {
-            return repository.MovieExists(id);
+            return writeRepository.MovieExists(id);
         }
     }
 }

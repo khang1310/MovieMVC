@@ -11,7 +11,6 @@ using WebApplication1.Repositories;
 
 namespace WebApplication1.Controllers
 {
-    [ApiController]
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     [ApiVersion("1.0")]
     [ApiVersion("2.0")]

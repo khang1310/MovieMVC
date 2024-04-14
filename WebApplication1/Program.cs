@@ -12,7 +12,8 @@ builder.Services.AddDbContext<WebApplication1Context>(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<EfCoreMovieRepository>();
+builder.Services.AddScoped<MovieReadRepository>();
+builder.Services.AddScoped<MovieWriteRepository>();
 builder.Services.AddScoped<StarRepository>();
 
 builder.Services.AddApiVersioning(opt =>

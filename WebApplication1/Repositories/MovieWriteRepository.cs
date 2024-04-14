@@ -3,9 +3,9 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Repositories
 {
-    public class EfCoreMovieRepository : EfCoreRepository<Movie, WebApplication1Context>
+    public class MovieWriteRepository : EFCoreWriteCommandRepository<Movie, WebApplication1Context>
     {
-        public EfCoreMovieRepository(WebApplication1Context context) : base(context)
+        public MovieWriteRepository(WebApplication1Context context) : base(context)
         {
         }
 
